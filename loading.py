@@ -19,7 +19,9 @@ class Load:
 
     var_loads = {
         'Floor': 1.50,
-        'Snow': 0.60
+        'Snow': 0.60,
+        'Roof': 0.75,
+        'Light Access': 0.25
     }
 
     @staticmethod
