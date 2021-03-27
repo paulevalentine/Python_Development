@@ -57,8 +57,18 @@ class Load:
             load.append(Load.perm_loads[name])
         return sum(load)
 
-    def __init__(self, elements):
-        self.elements = elements
+    def __init__(self, element):
+        """ Calculate the line loads for an element """
+        self.element = element
+        self.w_perm = []
+        self.w_var = []
+        for n in self.element:
+            self.w_perm.append(n[0] * n[2])
+            self.w_var.append(n[1] * n[2])
+            
+        self.perm_load = sum(self.w_perm)
+        self.var_load = sum(self.w_var)
+        self.sls_load = self.perm_load + self.var_load
+        self.uls_load = 1.35 * self.perm_load + 1.5 * self.var_load
 
-    def sls_load(self, loads):
-        " Calculate the loading on an element "
+        
