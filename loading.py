@@ -76,37 +76,68 @@ class Load:
 
     def plot_load_components(self):
         """Plot the components of a load on an element"""
-        support = []
-        perm = []
-        perm_value =[]
-        var = []
-        var_value = []
+        support = np.array([])
+        perm = np.array([])
+        perm_value =np.array([])
+        var = np.array([])
+        var_value = np.array([])
         names = []
         for n in range(len(self.element)):
-            support.append(self.element[n][2])
-            perm.append(self.element[n][0])
-            perm_value.append(self.element[n][0] * self.element[n][2])
-            var.append(self.element[n][1])
-            var_value.append(self.element[n][1] * self.element[n][2])
+            support = np.append(support, self.element[n][2])
+            perm = np.append(perm, self.element[n][0])
+            perm_value = np.append(perm_value, self.element[n][0] * self.element[n][2])
+            var = np.append(var, self.element[n][1])
+            var_value = np.append(var_value, self.element[n][1] * self.element[n][2])
             names.append(self.element[n][3])
-            
+        
+        # Plot the loading data
         plt.style.use('seaborn-white')
-        fig, (ax1, ax2) = plt.subplots(1,2)
-        ax1.scatter(support, perm, s=perm_value, label='Permanent Loads',
+        fig,(ax1, ax2) = plt.subplots(1,2)
+        fig.set_size_inches(11,4)
+        ax1.scatter(support, perm, s=perm_value * 100, label='Permanent Loads',
                     color='green', alpha=0.50)
-        ax1.scatter(support, var, s=var_value, label='Variable Loads',
+        ax1.scatter(support, var, s=var_value * 100, label='Variable Loads',
                     color='red', alpha = 0.50)
+        for i, v in enumerate(names):
+            ax1.text(support[i], perm[i], v)
+        for i, v in enumerate(names):
+            ax1.text(support[i], var[i], v)
         ax1.set_xlabel('Support Length (m)')
         ax1.set_ylabel('Load magnitude (kPa)')
         ax1.set_title('Bubble plot of loading on element (kN/m)')
-        ax2.bar(names, perm_value)
-        plt.ylim([0,max(max(perm),max(var))+2])
-        plt.xlim([min(support)-1, max(support)+1])
+        #plt.ylim([0,max(max(perm),max(var))+2])
+        #plt.xlim([min(support)-1, max(support)+1])
         ax1.grid()
+        ax1.legend()
+        ax2.bar(names, perm)
+        ax2.bar(names, var, bottom=perm)
+        ax2.set_title('Unit Loads Used')
+        ax2.set_xlabel('Element')
+        ax2.set_ylabel('Unit Load (kPa)')
         ax2.grid()
-        ax1.legend(bbox_to_anchor=(1,1), loc="upper left")
         plt.show()
-        print(names)
-        print(perm_value)
+        
+        # Plot the loading
+        fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+        fig.set_size_inches(11,4)
+        ax1.bar(names, perm_value, color='green')
+        ax1.grid()
+        ax1.set_title('Permanent Loads')
+        ax1.set_xlabel('Element')
+        ax1.set_ylabel('Loading (kN/m)')
+        ax2.bar(names, var_value, color='red')
+        ax2.grid()
+        ax2.set_title('Variable Loads')
+        ax2.set_xlabel('Element')
+        ax2.set_ylabel('Loading (kN/m)')
+        loading = [self.sls_load, self.uls_load]
+        ax3.bar(['SLS', 'ULS'], loading)
+        for i, v in enumerate(loading):
+            ax3.text(i, loading[i], f'{v:.2f}')
+        ax3.grid()
+        ax3.set_title('Total Loading')
+        ax3.set_xlabel('Limit State Condition')
+        ax3.set_ylabel('Load (kN/m)')
+        plt.show()
 
         
