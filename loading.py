@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Load:
@@ -80,24 +81,32 @@ class Load:
         perm_value =[]
         var = []
         var_value = []
+        names = []
         for n in range(len(self.element)):
             support.append(self.element[n][2])
             perm.append(self.element[n][0])
-            perm_value.append(self.element[n][0] * self.element[n][2] * 100)
+            perm_value.append(self.element[n][0] * self.element[n][2])
             var.append(self.element[n][1])
-            var_value.append(self.element[n][1] * self.element[n][2] * 100)
+            var_value.append(self.element[n][1] * self.element[n][2])
+            names.append(self.element[n][3])
             
         plt.style.use('seaborn-white')
-        fig, axs = plt.subplots()
-        axs.scatter(support, perm, s=perm_value, label='Permanent Loads',
+        fig, (ax1, ax2) = plt.subplots(1,2)
+        ax1.scatter(support, perm, s=perm_value, label='Permanent Loads',
                     color='green', alpha=0.50)
-        axs.scatter(support, var, s=var_value, label='Variable Loads',
+        ax1.scatter(support, var, s=var_value, label='Variable Loads',
                     color='red', alpha = 0.50)
-        axs.set_xlabel('Support Length (m)')
-        axs.set_ylabel('Load magnitude (kPa)')
-        axs.set_title('Bubble plot of loading on element (kN/m)')
-        plt.grid()
-        plt.legend()
+        ax1.set_xlabel('Support Length (m)')
+        ax1.set_ylabel('Load magnitude (kPa)')
+        ax1.set_title('Bubble plot of loading on element (kN/m)')
+        ax2.bar(names, perm_value)
+        plt.ylim([0,max(max(perm),max(var))+2])
+        plt.xlim([min(support)-1, max(support)+1])
+        ax1.grid()
+        ax2.grid()
+        ax1.legend(bbox_to_anchor=(1,1), loc="upper left")
         plt.show()
+        print(names)
+        print(perm_value)
 
         
