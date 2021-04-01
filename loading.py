@@ -57,6 +57,7 @@ class Load:
             load.append(Load.perm_loads[name])
         return sum(load)
 
+    
     def __init__(self, element):
         """ Calculate the line loads for an element """
         self.element = element
@@ -70,5 +71,33 @@ class Load:
         self.var_load = sum(self.w_var)
         self.sls_load = self.perm_load + self.var_load
         self.uls_load = 1.35 * self.perm_load + 1.5 * self.var_load
+ 
+
+    def plot_load_components(self):
+        """Plot the components of a load on an element"""
+        support = []
+        perm = []
+        perm_value =[]
+        var = []
+        var_value = []
+        for n in range(len(self.element)):
+            support.append(self.element[n][2])
+            perm.append(self.element[n][0])
+            perm_value.append(self.element[n][0] * self.element[n][2] * 100)
+            var.append(self.element[n][1])
+            var_value.append(self.element[n][1] * self.element[n][2] * 100)
+            
+        plt.style.use('seaborn-white')
+        fig, axs = plt.subplots()
+        axs.scatter(support, perm, s=perm_value, label='Permanent Loads',
+                    color='green', alpha=0.50)
+        axs.scatter(support, var, s=var_value, label='Variable Loads',
+                    color='red', alpha = 0.50)
+        axs.set_xlabel('Support Length (m)')
+        axs.set_ylabel('Load magnitude (kPa)')
+        axs.set_title('Bubble plot of loading on element (kN/m)')
+        plt.grid()
+        plt.legend()
+        plt.show()
 
         
