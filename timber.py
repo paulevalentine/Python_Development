@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import math
 
 class TimberBeam:
     """Timber structural calculations"""
@@ -7,7 +8,7 @@ class TimberBeam:
     """Must have the kmod data file"""
     
     def __init__(self, b, h, grade='C16', ksys=1, 
-                 service_class=1, load_duration='permanent'):
+                 service_class=1, load_duration='permanent', ley=3000, lez=2000):
         """ Form an instance of the timber beam class """
         self.b = b
         self.h = h
@@ -16,6 +17,8 @@ class TimberBeam:
         self.ksys = ksys
         self.service_class = service_class
         self.load_duration = load_duration
+        self.ley= lex
+        self.lez = lez
         
         
         # get all the timber materials and assign the grade passed when
@@ -30,6 +33,8 @@ class TimberBeam:
             self.partial_factor = 1.25
         else:
             self.partial_factor = 1.20
+        # set the kcr factor for shear to allow for splitting
+        self.kcr = 0.67
         
         # set the kh value
         if self.h < 150:
@@ -49,25 +54,46 @@ class TimberBeam:
                     self.timber['fmk']
                     / self.partial_factor)
         
-        # calculate the bending capacity of the section
-        self.Z = self.b * self.h**2 / 6
-        self.Mcap = self.Z * self.fmd
+        # calculate the geometric properties of the section
+        self.A = self.b * self.h
+        self.Zy = self.b * self.h**2 / 6
+        self.Iy = self.b * self.h**3 / 12
+        self.Iz = self.h * self.b**3 / 12
+        self.ry = math.sqrt(self.Iy / self.A)
+        self.rz = math.sqrt(self.Iz / self.A)
+        
+        # calculate the bending capacity of the section  
+        self.Mcap = self.Zy * self.fmd
         
         # calculate the shear capacity of the section
-        self.A = self.b * self.h
         self.Vcap = (self.kmod * self.timber['fvk']
-                     * self.A * (2/3) /
+                     * self.A * self.ksys * self.kcr * (2/3) /
                      self.partial_factor)
+        
+        # properties for axial capacity
+        self.beta_c = 0.20 # only solid sections considered at present
+        lam_y = self.ley / self.ry
+        lam_z =  self.lez / self.rz
+        e = self.timber['E005']
+        f = self.timber['fc0k']
+        lam_rely = (lam_y / math.pi()) * math.sqrt(f / e)
+        lam_relz = (lam_z / math.pi()) * math.sqrt(f / e)
+        
         
     def print_capacities(self, M, V):
         """ Print the capacities for the timber beam """
-        print(f'Design Bending Capacity: {self.Mcap*10**-6 :.2f}kNm')
-        print(f'Design Shear Capacity: {self.Vcap*10**-3 :.2f}kN')
+        if self.Mcap*10**-6 >= M and self.Vcap*10**-3 >= V:
+            uls_status = 'Pass'
+        else:
+            uls_status = 'Fail'
         fig, ax = plt.subplots()
-        fig.set_size_inches(11,4)
+        fig.set_size_inches(5,4)
+        fig.suptitle(f'Beam status = {uls_status}')
         x_values = ['Moment Capacity', 'Shear Capacity']
         y_values = [self.Mcap*10**-6, self.Vcap*10**-3]
         ax.bar(x_values, y_values, color='grey')
+        ax.set_xlabel('Force Effect')
+        ax.set_ylabel('Force / Moment (kN/kNm)')
         plt.axhline(M, color='red', label=f'Applied Moment { M :.2f}kNm')
         plt.axhline(V, color='green', label=f'Applied Shear {V :.2f}kN')
         plt.legend()
