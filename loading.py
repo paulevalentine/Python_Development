@@ -26,17 +26,18 @@ class Load:
     }
 
     @staticmethod
-    def print_element_loads():
-        """ Print out the element loads as a bar chart """
+    def print_component_loads():
+        """ Print out the component loads above as a bar chart """
         perm_names = [*Load.perm_loads]
         var_names = [*Load.var_loads]
         perm_values = [*Load.perm_loads.values()]
         var_values = [*Load.var_loads.values()]
         plt.style.use('seaborn-white')
         fig, ax = plt.subplots()
+        fig.set_size_inches(11,4)
         ax.bar(perm_names, perm_values, label='Permanent Unit Loads')
         ax.bar(var_names, var_values, label='Variable Unit Loads')
-        ax.set_xlabel('Name of Element')
+        ax.set_xlabel('Name of Component')
         ax.set_ylabel('Unit Load (kPa)')
         ax.set_title('Unit Loads Used')
         for i, v in enumerate(perm_values):
@@ -51,12 +52,30 @@ class Load:
 
 
     @staticmethod
-    def elements(data):
-        """ Sum the loads from their keys """
+    def sum_components(data):
+        """ Sum the loads from their keys for permanent loading """
         load = []
         for name in data:
             load.append(Load.perm_loads[name])
         return sum(load)
+    
+    @staticmethod
+    def plot_elements(data):
+        """Plot the element loading for the project"""
+        y_value = []
+        x_value = []
+        for i, n in enumerate(data):
+            y_value.append(data[i][0])
+            x_value.append(data[i][1])
+        fig, ax = plt.subplots()
+        fig.set_size_inches(11, 4)
+        ax.bar(x_value, y_value)
+        ax.set_xlabel('Element')
+        ax.set_ylabel('Area Load (kPa)')
+        ax.set_title('Loads relating to elements')
+        plt.grid()
+        plt.show()
+        
 
     
     def __init__(self, element):
@@ -72,9 +91,10 @@ class Load:
         self.var_load = sum(self.w_var)
         self.sls_load = self.perm_load + self.var_load
         self.uls_load = 1.35 * self.perm_load + 1.5 * self.var_load
+        self.gammaf = self.uls_load / self.sls_load
  
 
-    def plot_load_components(self):
+    def plot_load_components(self, ref='No Ref Given'):
         """Plot the components of a load on an element"""
         support = np.array([])
         perm = np.array([])
@@ -85,7 +105,8 @@ class Load:
         for n in range(len(self.element)):
             support = np.append(support, self.element[n][2])
             perm = np.append(perm, self.element[n][0])
-            perm_value = np.append(perm_value, self.element[n][0] * self.element[n][2])
+            perm_value = np.append(perm_value, self.element[n][0] *
+                                   self.element[n][2])
             var = np.append(var, self.element[n][1])
             var_value = np.append(var_value, self.element[n][1] * self.element[n][2])
             names.append(self.element[n][3])
@@ -93,6 +114,7 @@ class Load:
         # Plot the loading data
         plt.style.use('seaborn-white')
         fig,(ax1, ax2) = plt.subplots(1,2)
+        fig.suptitle(ref)
         fig.set_size_inches(11,4)
         ax1.scatter(support, perm, s=perm_value * 100, label='Permanent Loads',
                     color='green', alpha=0.50)
@@ -107,6 +129,8 @@ class Load:
         ax1.set_title('Bubble plot of loading on element (kN/m)')
         #plt.ylim([0,max(max(perm),max(var))+2])
         #plt.xlim([min(support)-1, max(support)+1])
+        ax1.set_ylim([0,max(max(perm),max(var))+2])
+        ax1.set_xlim([min(support)-1, max(support)+1])
         ax1.grid()
         ax1.legend()
         ax2.bar(names, perm)
@@ -119,6 +143,7 @@ class Load:
         
         # Plot the loading
         fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+        fig.suptitle(ref)
         fig.set_size_inches(11,4)
         ax1.bar(names, perm_value, color='green')
         ax1.grid()
