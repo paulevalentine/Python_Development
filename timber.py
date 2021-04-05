@@ -8,7 +8,7 @@ class TimberBeam:
     """Must have the kmod data file"""
     
     def __init__(self, b, h, grade='C16', ksys=1, 
-                 service_class=1, load_duration='permanent', ley=3000, lez=2000):
+                 service_class=1, load_duration='permanent', ley=3000, lez=3000):
         """ Form an instance of the timber beam class """
         self.b = b
         self.h = h
@@ -17,7 +17,7 @@ class TimberBeam:
         self.ksys = ksys
         self.service_class = service_class
         self.load_duration = load_duration
-        self.ley= lex
+        self.ley= ley
         self.lez = lez
         
         
@@ -70,15 +70,31 @@ class TimberBeam:
                      * self.A * self.ksys * self.kcr * (2/3) /
                      self.partial_factor)
         
+        def k_i(lam_rel, beta_c):
+            """ Calculates the ky factor from BS EN 1995-1-1 """
+            k = 0.50*(1 + beta_c * (lam_rel - 0.30) + lam_rel**2)
+            return k
+        
+        
+        def k_ci(k_i, lam_rel):
+            """ Calculates the strength reduction factor for slenderness """
+            k = 1 / (k_i + math.sqrt(k_i**2 - lam_rel**2))
+            return k
+            
         # properties for axial capacity
         self.beta_c = 0.20 # only solid sections considered at present
         lam_y = self.ley / self.ry
         lam_z =  self.lez / self.rz
         e = self.timber['E005']
         f = self.timber['fc0k']
-        lam_rely = (lam_y / math.pi()) * math.sqrt(f / e)
-        lam_relz = (lam_z / math.pi()) * math.sqrt(f / e)
-        
+        lam_rely = (lam_y / math.pi * math.sqrt(f / e))
+        lam_relz = (lam_z / math.pi * math.sqrt(f / e))
+        k_y = k_i(lam_rely, self.beta_c)
+        k_z = k_i(lam_relz, self.beta_c)
+        self.k_cy = k_ci(k_y, lam_rely)
+        self.k_cz = k_ci(k_z, lam_relz)
+        print(f'This is k_cy {self.k_cy}')
+        print(f'This is k_cz {self.k_cz}')
         
     def print_capacities(self, M, V):
         """ Print the capacities for the timber beam """
