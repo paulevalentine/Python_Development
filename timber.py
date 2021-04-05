@@ -62,13 +62,12 @@ class TimberBeam:
         self.ry = math.sqrt(self.Iy / self.A)
         self.rz = math.sqrt(self.Iz / self.A)
         
-        # calculate the bending capacity of the section  
-        self.Mcap = self.Zy * self.fmd
+        # calculate the shear strength of the section
+        self.fvd = (self.kmod * self.timber['fvk']
+                     * self.ksys / self.partial_factor)
         
-        # calculate the shear capacity of the section
-        self.Vcap = (self.kmod * self.timber['fvk']
-                     * self.A * self.ksys * self.kcr * (2/3) /
-                     self.partial_factor)
+        # calculate the design compressive strength parallel to the grain
+        
         
         def k_i(lam_rel, beta_c):
             """ Calculates the ky factor from BS EN 1995-1-1 """
@@ -81,7 +80,7 @@ class TimberBeam:
             k = 1 / (k_i + math.sqrt(k_i**2 - lam_rel**2))
             return k
             
-        # properties for axial capacity
+
         self.beta_c = 0.20 # only solid sections considered at present
         lam_y = self.ley / self.ry
         lam_z =  self.lez / self.rz
@@ -96,22 +95,28 @@ class TimberBeam:
         print(f'This is k_cy {self.k_cy}')
         print(f'This is k_cz {self.k_cz}')
         
-    def print_capacities(self, M, V):
-        """ Print the capacities for the timber beam """
-        if self.Mcap*10**-6 >= M and self.Vcap*10**-3 >= V:
+    def capacity_check(self, M, V, F):
+        """ Compare the design strength to the applied stress """
+        # calculate the applied stresses
+        smd = M * 10**6 / self.Zy
+        td = V * 10**3 / (self.A * self.kcr) * (3/2)
+        scd = F * 10**3 / self.A
+        
+        # check the status of the beam
+        if self.fmd >= smd and self.fvd >= td:
             uls_status = 'Pass'
         else:
             uls_status = 'Fail'
         fig, ax = plt.subplots()
         fig.set_size_inches(5,4)
         fig.suptitle(f'Beam status = {uls_status}')
-        x_values = ['Moment Capacity', 'Shear Capacity']
-        y_values = [self.Mcap*10**-6, self.Vcap*10**-3]
+        x_values = ['Bending Strength', 'Shear Strength']
+        y_values = [self.fmd, self.fvd]
         ax.bar(x_values, y_values, color='grey')
         ax.set_xlabel('Force Effect')
-        ax.set_ylabel('Force / Moment (kN/kNm)')
-        plt.axhline(M, color='red', label=f'Applied Moment { M :.2f}kNm')
-        plt.axhline(V, color='green', label=f'Applied Shear {V :.2f}kN')
+        ax.set_ylabel('Stress MPa')
+        plt.axhline(smd, color='red', label=f'Applied bending stress { smd :.2f}MPa')
+        plt.axhline(td, color='green', label=f'Applied shear stress {td :.2f}MPa')
         plt.legend()
         plt.grid()
         plt.show()
