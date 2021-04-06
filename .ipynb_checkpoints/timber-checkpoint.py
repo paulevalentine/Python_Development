@@ -67,6 +67,10 @@ class TimberBeam:
                      * self.ksys / self.partial_factor)
         
         # calculate the design compressive strength parallel to the grain
+<<<<<<< HEAD
+=======
+        self.fc0d = self.ksys * self.kmod * self.timber['fc0k'] / self.partial_factor
+>>>>>>> 88990738477e86e2bb15303c3c64be5005e62370
         
         
         def k_i(lam_rel, beta_c):
@@ -92,14 +96,23 @@ class TimberBeam:
         k_z = k_i(lam_relz, self.beta_c)
         self.k_cy = k_ci(k_y, lam_rely)
         self.k_cz = k_ci(k_z, lam_relz)
+<<<<<<< HEAD
         print(f'This is k_cy {self.k_cy}')
         print(f'This is k_cz {self.k_cz}')
+=======
+        
+        # calculate the design compressive strength paralle to the grain
+        # with allowance for buckling
+        self.fc0dy = self.k_cy * self.fc0d
+        self.fc0dz = self.k_cz * self.fc0d
+>>>>>>> 88990738477e86e2bb15303c3c64be5005e62370
         
     def capacity_check(self, M, V, F):
         """ Compare the design strength to the applied stress """
         # calculate the applied stresses
         smd = M * 10**6 / self.Zy
         td = V * 10**3 / (self.A * self.kcr) * (3/2)
+<<<<<<< HEAD
         scd = F * 10**3 / self.A
         
         # check the status of the beam
@@ -119,5 +132,42 @@ class TimberBeam:
         plt.axhline(td, color='green', label=f'Applied shear stress {td :.2f}MPa')
         plt.legend()
         plt.grid()
+=======
+        sc0d = F * 10**3 / self.A
+        
+        # unity checks
+        km = 0.70 # for rectangular timber sections
+        u1 = (smd/(self.fmd * self.kcrit))**2 + (sc0d / self.fc0dz)
+        u2 = smd/(self.fmd * self.kcrit) + (sc0d / self.fc0dy)
+        u3 = smd/(self.fmd * self.kcrit) * km + (sc0d / self.fc0dz)
+        
+        # check the status of the beam
+        if u1 <= 1 and u2 <= 1 and u3 <=1:
+            uls_status = 'PASS'
+        else:
+            uls_status = 'FAIL'
+        
+        # plot results
+        # print('Material Properties:\n',self.timber)
+        fig, (ax1, ax2) = plt.subplots(1,2)
+        fig.set_size_inches(11,4)
+        fig.suptitle(f'STATUS = {uls_status}')
+        x_values = ['Bending', 'Shear', 'y Comp',
+                    'z Comp']
+        y_values = [self.fmd, self.fvd, self.fc0dy, self.fc0dz]
+        colour=['red', 'green', 'orange', 'orange']
+        ax1.bar(x_values, y_values, color=colour)
+        ax1.set_xlabel('Design Capacities')
+        ax1.set_ylabel('Stress MPa')
+        ax2.bar(['U1', 'U2', 'U3'], [u1, u2, u3])
+        ax1.axhline(smd, color='red', label=f'Applied bending stress { smd :.2f}MPa')
+        ax1.axhline(td, color='green', label=f'Applied shear stress {td :.2f}MPa')
+        ax1.axhline(sc0d, color='orange', label=f'Applied comp stress {sc0d :.2f}MPa')
+        ax1.legend()
+        ax1.set_title('Action Stresses')
+        ax2.set_title('ULS Unity Ratio Checks')
+        ax1.grid()
+        ax2.grid()
+>>>>>>> 88990738477e86e2bb15303c3c64be5005e62370
         plt.show()
         

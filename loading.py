@@ -127,8 +127,6 @@ class Load:
         ax1.set_xlabel('Support Length (m)')
         ax1.set_ylabel('Load magnitude (kPa)')
         ax1.set_title('Bubble plot of loading on element (kN/m)')
-        #plt.ylim([0,max(max(perm),max(var))+2])
-        #plt.xlim([min(support)-1, max(support)+1])
         ax1.set_ylim([0,max(max(perm),max(var))+2])
         ax1.set_xlim([min(support)-1, max(support)+1])
         ax1.grid()

@@ -3,7 +3,7 @@ These notes are developed in conjunction with the structensor timber class modul
 ## Work Flow
 - Import the timber module
 - Create a TimberBeam instance give the cross section size (b,h), the timber grade, the service class and the duration of loading. Include the effective length about both axis for axial capacities
-- Check compliance of the section against a set of force actions
+- Use the capacity check function to establish the ULS capacity of the section
 # Background Data
 ## Kmod Values
 ![](Kmod_values.png)
