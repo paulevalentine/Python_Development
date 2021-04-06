@@ -1,0 +1,5 @@
+Type,service_class,permanent,long_term,medium_term,short_term,instantaneous
+Solid,1,0.60,0.70,0.80,0.90,1.1
+Solid,2,0.60,0.70,0.80,0.90,1.1
+Solid,3,0.50,0.55,0.65,0.70,0.90
+OSB3,1,0.40,0.50,0.70,0.90,1.1
