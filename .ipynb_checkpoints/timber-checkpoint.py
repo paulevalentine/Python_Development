@@ -23,7 +23,7 @@ class TimberBeam:
         
         # get all the timber materials and assign the grade passed when
         # forming the instance of the class
-        all_timber_materials = pd.read_csv('timberProperties.csv', index_col=0)
+        all_timber_materials = pd.read_csv('./data/timberProperties.csv', index_col=0)
         self.timber = all_timber_materials.loc[grade]
         
         # set the partial factor on material
@@ -44,7 +44,7 @@ class TimberBeam:
         
         # set the kmod value
         type = self.timber['Type']
-        kmod_values = pd.read_csv('kmod.csv', index_col=0)
+        kmod_values = pd.read_csv('./data/kmod.csv', index_col=0)
         service_class_filter = kmod_values[kmod_values['service_class']
                                            == self.service_class]
         self.kmod =  service_class_filter.loc[type, self.load_duration]
@@ -67,10 +67,7 @@ class TimberBeam:
                      * self.ksys / self.partial_factor)
         
         # calculate the design compressive strength parallel to the grain
-<<<<<<< HEAD
-=======
         self.fc0d = self.ksys * self.kmod * self.timber['fc0k'] / self.partial_factor
->>>>>>> 88990738477e86e2bb15303c3c64be5005e62370
         
         
         def k_i(lam_rel, beta_c):
@@ -96,43 +93,17 @@ class TimberBeam:
         k_z = k_i(lam_relz, self.beta_c)
         self.k_cy = k_ci(k_y, lam_rely)
         self.k_cz = k_ci(k_z, lam_relz)
-<<<<<<< HEAD
-        print(f'This is k_cy {self.k_cy}')
-        print(f'This is k_cz {self.k_cz}')
-=======
         
         # calculate the design compressive strength paralle to the grain
         # with allowance for buckling
         self.fc0dy = self.k_cy * self.fc0d
         self.fc0dz = self.k_cz * self.fc0d
->>>>>>> 88990738477e86e2bb15303c3c64be5005e62370
         
     def capacity_check(self, M, V, F):
         """ Compare the design strength to the applied stress """
         # calculate the applied stresses
         smd = M * 10**6 / self.Zy
         td = V * 10**3 / (self.A * self.kcr) * (3/2)
-<<<<<<< HEAD
-        scd = F * 10**3 / self.A
-        
-        # check the status of the beam
-        if self.fmd >= smd and self.fvd >= td:
-            uls_status = 'Pass'
-        else:
-            uls_status = 'Fail'
-        fig, ax = plt.subplots()
-        fig.set_size_inches(5,4)
-        fig.suptitle(f'Beam status = {uls_status}')
-        x_values = ['Bending Strength', 'Shear Strength']
-        y_values = [self.fmd, self.fvd]
-        ax.bar(x_values, y_values, color='grey')
-        ax.set_xlabel('Force Effect')
-        ax.set_ylabel('Stress MPa')
-        plt.axhline(smd, color='red', label=f'Applied bending stress { smd :.2f}MPa')
-        plt.axhline(td, color='green', label=f'Applied shear stress {td :.2f}MPa')
-        plt.legend()
-        plt.grid()
-=======
         sc0d = F * 10**3 / self.A
         
         # unity checks
@@ -168,6 +139,5 @@ class TimberBeam:
         ax2.set_title('ULS Unity Ratio Checks')
         ax1.grid()
         ax2.grid()
->>>>>>> 88990738477e86e2bb15303c3c64be5005e62370
         plt.show()
         

@@ -23,7 +23,7 @@ class TimberBeam:
         
         # get all the timber materials and assign the grade passed when
         # forming the instance of the class
-        all_timber_materials = pd.read_csv('timberProperties.csv', index_col=0)
+        all_timber_materials = pd.read_csv('./data/timberProperties.csv', index_col=0)
         self.timber = all_timber_materials.loc[grade]
         
         # set the partial factor on material
@@ -44,7 +44,7 @@ class TimberBeam:
         
         # set the kmod value
         type = self.timber['Type']
-        kmod_values = pd.read_csv('kmod.csv', index_col=0)
+        kmod_values = pd.read_csv('./data/kmod.csv', index_col=0)
         service_class_filter = kmod_values[kmod_values['service_class']
                                            == self.service_class]
         self.kmod =  service_class_filter.loc[type, self.load_duration]
