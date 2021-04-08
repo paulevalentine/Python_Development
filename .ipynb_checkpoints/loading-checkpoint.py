@@ -21,7 +21,7 @@ class Load:
     var_loads = {
         'Floor': 1.50,
         'Snow': 0.60,
-        'Roof': 0.75,
+        'Roof': 0.60,
         'Light Access': 0.25
     }
 
@@ -78,9 +78,10 @@ class Load:
         
 
     
-    def __init__(self, element):
+    def __init__(self, element, ref='Not Known'):
         """ Calculate the line loads for an element """
         self.element = element
+        self.ref = ref
         self.w_perm = []
         self.w_var = []
         for n in self.element:
@@ -94,7 +95,7 @@ class Load:
         self.gammaf = self.uls_load / self.sls_load
  
 
-    def plot_load_components(self, ref='No Ref Given'):
+    def plot_load_components(self):
         """Plot the components of a load on an element"""
         support = np.array([])
         perm = np.array([])
@@ -114,7 +115,7 @@ class Load:
         # Plot the loading data
         plt.style.use('seaborn-white')
         fig,(ax1, ax2) = plt.subplots(1,2)
-        fig.suptitle(ref)
+        fig.suptitle(self.ref)
         fig.set_size_inches(11,4)
         ax1.scatter(support, perm, s=perm_value * 100, label='Permanent Loads',
                     color='green', alpha=0.50)
@@ -127,8 +128,6 @@ class Load:
         ax1.set_xlabel('Support Length (m)')
         ax1.set_ylabel('Load magnitude (kPa)')
         ax1.set_title('Bubble plot of loading on element (kN/m)')
-        #plt.ylim([0,max(max(perm),max(var))+2])
-        #plt.xlim([min(support)-1, max(support)+1])
         ax1.set_ylim([0,max(max(perm),max(var))+2])
         ax1.set_xlim([min(support)-1, max(support)+1])
         ax1.grid()
@@ -143,7 +142,7 @@ class Load:
         
         # Plot the loading
         fig, (ax1, ax2, ax3) = plt.subplots(1,3)
-        fig.suptitle(ref)
+        fig.suptitle(self.ref)
         fig.set_size_inches(11,4)
         ax1.bar(names, perm_value, color='green')
         ax1.grid()
