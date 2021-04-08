@@ -481,7 +481,7 @@ The peak canopy snow load = 2.00kPa
 \section{General Loadiong}\label{general-loadiong}}
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{3}{\boxspacing}
+\prompt{In}{incolor}{1}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{k+kn}{from} \PY{n+nn}{loading} \PY{k+kn}{import} \PY{o}{*}
 
@@ -497,7 +497,7 @@ The following weights of materials are used in the structural design in
 accordance with BS EN 1990.
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{4}{\boxspacing}
+\prompt{In}{incolor}{2}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{n}{Load}\PY{o}{.}\PY{n}{print\PYZus{}component\PYZus{}loads}\PY{p}{(}\PY{p}{)}
 \end{Verbatim}
@@ -515,7 +515,7 @@ Elements of the structure have permanent and variable loads as
 calculated from the above by summing the relevent components.
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{5}{\boxspacing}
+\prompt{In}{incolor}{3}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{c+c1}{\PYZsh{} calculate the loads of building elements}
 \PY{n}{floor\PYZus{}perm} \PY{o}{=} \PY{p}{[}\PY{n}{Load}\PY{o}{.}\PY{n}{sum\PYZus{}components}\PY{p}{(}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Decking}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Joists}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Ceiling}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Floor Perm}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
@@ -550,7 +550,7 @@ length support by the member.
 \subsubsection{Beam B1}\label{beam-b1}}
 
     \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
-\prompt{In}{incolor}{6}{\boxspacing}
+\prompt{In}{incolor}{4}{\boxspacing}
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{c+c1}{\PYZsh{} Set the elements and the supported length of the elements that are to make up the load}
 \PY{n}{floor} \PY{o}{=} \PY{p}{[}\PY{n}{floor\PYZus{}perm}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{floor\PYZus{}var}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{First Floor}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}
@@ -572,6 +572,37 @@ length support by the member.
     
     \begin{center}
     \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_12_1.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    \hypertarget{beam-analysis}{%
+\section{Beam analysis}\label{beam-analysis}}
+
+The class below calculates the bending moment and shear forces for the
+beam. The input is the span, followed by a 2 dimension list. Each row of
+the list is a loading. The loading list elements are the start, end and
+load magnitude for the 0, 1 and indices. For a general UDL the load is
+the load per meter. For a point load, the start and end positions are
+set the same to represent the position of the point load and the load is
+the magitude of the point load.
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{3}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k+kn}{from} \PY{n+nn}{simple\PYZus{}beam\PYZus{}analysis} \PY{k+kn}{import} \PY{o}{*}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{4}{\boxspacing}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{test} \PY{o}{=} \PY{n}{Beam}\PY{p}{(}\PY{l+m+mi}{4}\PY{p}{,} \PY{p}{[}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{4}\PY{p}{,}\PY{l+m+mf}{1.5}\PY{p}{]}\PY{p}{,} \PY{p}{[}\PY{l+m+mi}{2}\PY{p}{,}\PY{l+m+mi}{2}\PY{p}{,}\PY{l+m+mi}{5}\PY{p}{]}\PY{p}{]}\PY{p}{)}
+\PY{n}{test}\PY{o}{.}\PY{n}{force\PYZus{}diagram}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{center}
+    \adjustimage{max size={0.9\linewidth}{0.9\paperheight}}{output_15_0.png}
     \end{center}
     { \hspace*{\fill} \\}
     
