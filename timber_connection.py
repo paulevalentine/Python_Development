@@ -64,7 +64,6 @@ class ScrewConnection:
     def withdrawal_nail(self, tpen=30, number=1):
         """calculate the withdrawal load of nails"""
         return tpen * number * self.kmod * self.Rk / self.gamma_M
-    
     def withdrawal_screw(self, tpen=30, number=1):
         """calculate the withdrawal load of screws"""
         return 4 * tpen * number * self.kmod * self.Rk / self.gamma_M
@@ -74,6 +73,7 @@ class ScrewConnection:
         pass
     
     """ *************************************************** """
+
         
         
         
