@@ -38,7 +38,7 @@ class ScrewConnection:
     """ The below is taken from the Eurocode """
 
     def faxk_nail(self):
-        """calculate the pointside withdrawal strength"""
+        """calculate the pointside withdrawal strength for a screw"""
         faxk = 20*10**-6 * self.timber['pk']**2
         return faxk
 
@@ -50,7 +50,7 @@ class ScrewConnection:
 
 
     def fheadk_nail(self):
-        """calcaulte the headside pull through strength"""
+        """calcaulte the headside pull through strength for a nail"""
         fheadk = 70*10**-6 * self.timber['pk']**2
         return fheadk
 
