@@ -1,4 +1,5 @@
 import pandas as pd
+import math
 
 class ScrewConnection:
     """ Class to model timber connections """
@@ -84,4 +85,42 @@ class ScrewConnection:
     def screw_axial(self, tpen, n=1):
         """ the min of withdrawl and pull through """
         """ calcualest the axial capacity of the screw """
-        return min(self.screw_withdrawal(tpen, n), self.screw_pullthrough(n))
+        return min(self.screw_withdrawal(tpen, n), self.screw_pullthrough(n)) * self.kmod / self.gamma_M
+
+
+    """ This section deals with shear capacity of screws """
+
+    def splitting(b=38, h=100, he=50):
+        """ characeristic splitting capacity of the connection """
+        return 14 * b * math.sqrt(he / (1 - he/h))
+
+
+    def fhk(drill='predrilled'):
+        """ calculate the characteristic embedment strengths """
+        if drill == 'predrilled':
+            fhk = 0.082 * (1-0.01 * self.diam) self.timber['pk']
+        else:
+            fhk = 0.082 * self.timber['pk'] self.diam**(-0.30)
+        return fhk 
+
+    
+    def myrk(fu=400):
+        """ calculate the characteristic value for the yield moment """
+        # only applicable for round nails / screws
+        return 0.30 * fu * self.d**2.6
+
+
+    def Fvrk(t1=38, t2=38, drill='predrilled', fu=400, tpen=30):
+        """ calculate the characteristic shear capacity of a fixing in single shear """
+        f1 = fhk(drill)
+        f2 = fhk(drill)
+        b = f1 / f2
+        m = myrk(fu)
+        d = self.diam
+
+        a1 = f1*t1*d
+        a2 = f2*t2*d
+        c = screw_axial(n=1, tpen)/4
+
+        f3 = f1/(1+b)
+        """ THIS IS NOT FINISHED """
