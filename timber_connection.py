@@ -17,15 +17,6 @@ class ScrewConnection:
                                            index_col=0)
         self.timber = all_timber_materials.loc[grade]
 
-
-        # get the withdrawal load data (extract from timber manual)
-        self.withdrawal_data = pd.read_csv('./data/nailwithdraw.csv',
-                                           index_col=0)
-
-        # select the specific withdrawal characteristic resistance
-        self.Rk = self.withdrawal_data.loc[self.diam, self.grade]
-
-        # set the partial factor
         self.gamma_M = 1.3
 
         # set the kmod factor
@@ -58,24 +49,30 @@ class ScrewConnection:
     def nail_withdrawal(self, tpen, t=38, number=1):
         """calculate the withdrawal load of a smooth nail"""
         a = self.faxk_nail() * self.diam * tpen
-        b = self.faxk_nail() * self.diam * t + self.fheadk_nail() * self.diamh**2
+        b = (self.faxk_nail() * self.diam * t + self.fheadk_nail() 
+                * self.diamh**2)
         F = min(a,b)
-        return 4 * F * self.kmod * number / self.gamma_M
-
-    """ ************************************************* """
+        return F * self.kmod * number / self.gamma_M
 
 
-    """ The below are taken from the timber designer manual """
+    def nef(self, spacing='10d', drill='predrilled', n=1):
+        """calculate the effective fixing number factor"""
+        df = pd.read_csv('./data/kef.csv')
+        kef = df[df['spacing']==spacing].loc[:,drill].values[0]
+        nef = n**kef  
+        return nef
 
-    def withdrawal_nail(self, tpen=30, number=1):
-        """calculate the withdrawal load of nails"""
-        return tpen * number * self.kmod * self.Rk / self.gamma_M
-    def withdrawal_screw(self, tpen=30, number=1):
-        """calculate the withdrawal load of screws"""
-        return 4 * tpen * number * self.kmod * self.Rk / self.gamma_M
 
-    def nef(self, spacing='5d', number=2):
-        """calculate the effective number of screws"""
-        pass
+    def nef_axial(Self, n=1):
+        """ effective fixing number for axially loaded fixings """
+        return n**0.90
 
-    """ *************************************************** """
+
+    def screw_withdrawal(self, tpen, n=1):
+        """calculate the withdrawal capacity of a screw"""
+        # note that the force angle is not considere here
+        kd = min(1, self.diam / 8)
+        f = (self.nef_axial(n) * self.faxk_screw(tpen) * self.diam *
+                tpen * kd / 1.2)
+        return f
+
