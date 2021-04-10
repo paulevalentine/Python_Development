@@ -27,6 +27,7 @@ class ScrewConnection:
         self.kmod =  service_class_filter.loc[type, self.load_duration]
 
     """ The below is taken from the Eurocode """
+    """ This section deals with axial withdrawal and pull through """
 
     def faxk_nail(self):
         """calculate the pointside withdrawal strength for a screw"""
@@ -76,3 +77,11 @@ class ScrewConnection:
                 tpen * kd / 1.2)
         return f
 
+    def screw_pullthrough(self, n=1):
+        return self.nef_axial(n) * self.fheadk_nail() * self.diamh**2 # nail fheadk used here 
+
+
+    def screw_axial(self, tpen, n=1):
+        """ the min of withdrawl and pull through """
+        """ calcualest the axial capacity of the screw """
+        return min(self.screw_withdrawal(tpen, n), self.screw_pullthrough(n))
