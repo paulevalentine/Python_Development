@@ -90,37 +90,41 @@ class ScrewConnection:
 
     """ This section deals with shear capacity of screws """
 
-    def splitting(b=38, h=100, he=50):
+    def splitting(self, b=38, h=100, he=50):
         """ characeristic splitting capacity of the connection """
         return 14 * b * math.sqrt(he / (1 - he/h))
 
 
-    def fhk(drill='predrilled'):
+    def fhk(self, drill='predrilled'):
         """ calculate the characteristic embedment strengths """
         if drill == 'predrilled':
-            fhk = 0.082 * (1-0.01 * self.diam) self.timber['pk']
+            fhk = 0.082 * (1-0.01 * self.diam) * self.timber['pk']
         else:
-            fhk = 0.082 * self.timber['pk'] self.diam**(-0.30)
+            fhk = 0.082 * self.timber['pk'] * self.diam**(-0.30)
         return fhk 
 
     
-    def myrk(fu=400):
+    def myrk(self, fu=540):
         """ calculate the characteristic value for the yield moment """
         # only applicable for round nails / screws
-        return 0.30 * fu * self.d**2.6
+        return 0.30 * fu * self.diam**2.6
 
 
-    def Fvrk(t1=38, t2=38, drill='predrilled', fu=400, tpen=30):
+    def Fvrk(self, t1=38, t2=38, drill='predrilled', fu=540, tpen=30):
         """ calculate the characteristic shear capacity of a fixing in single shear """
-        f1 = fhk(drill)
-        f2 = fhk(drill)
-        b = f1 / f2
-        m = myrk(fu)
+        m = self.myrk(fu)
         d = self.diam
+        a1 = self.fhk(drill)
+        a2 = self.fhk(drill)
+        b = a1 / a2
+        a3 = self.screw_axial(tpen, 1) / 4
 
-        a1 = f1*t1*d
-        a2 = f2*t2*d
-        c = screw_axial(n=1, tpen)/4
-
-        f3 = f1/(1+b)
-        """ THIS IS NOT FINISHED """
+        # Selection criteria from (8.6) 
+        f1 = a1 * t1 * self.diam
+        f2 = a2 * t2 * self.diam
+        f3 = f1/(1+b)*(math.sqrt(b+2*b**2*(1+(t2/t1)+(t2/t1)**2)+b**3*(t2/t1)**2) - b*(1+(t2/t1))) + a3
+        f4 = 1.05 * f1 / (2+b) * (math.sqrt(2*b*(1+b) + (4*b*(2+b)*m)/(a1*self.diam*t1**2)) - b) + a3
+        f5 = 1.05 * f2 / (1+2*b) * (math.sqrt(2*b**2*(1+b) + (4*b*(1+2*b)*m / (a1 * self.diam * t2**2))) - b) + a3
+        f6 = 1.15 * math.sqrt(2*b/(1+b)) * math.sqrt(2*m*a1*self.diam) + a3 
+        answer = [f1, f2, f3, f4, f5, f6]
+        return min(answer)

@@ -1,7 +1,11 @@
 """ test module for code """
 from timber_connection import *
-c = ScrewConnection(5, 10, 'C24')
-print(c.screw_withdrawal(tpen=50, n=1))
-print(c.screw_pullthrough(n=1))
-print(c.screw_axial(tpen=50, n=1))
-print(f'This is the value for the nail: {c.nail_withdrawal(tpen=50)}')
+c = ScrewConnection(4.17, 8, 'C24')
+x = range(20, 100, 1)
+y = [c.Fvrk(a) for a in x]
+print(c.Fvrk(t1=33, t2=33))
+
+import matplotlib.pyplot as plt
+plt.plot(x, y)
+plt.grid()
+plt.show()
