@@ -3,6 +3,8 @@ import math
 
 class ScrewConnection:
     """ Class to model timber connections """
+    """ Initialise with the general prarameters for the connection """
+    """ Number of fixings is considered as an instance parameter """
 
     def __init__(self, diam, diamh, grade='C16',
                  load_duration='permanent', service_class=1):
@@ -13,11 +15,12 @@ class ScrewConnection:
         self.service_class = service_class
 
 
-        # Get the general timber properties
+        # Get the general timber properties from the data CSV file
         all_timber_materials = pd.read_csv('./data/timberProperties.csv',
                                            index_col=0)
         self.timber = all_timber_materials.loc[grade]
 
+        # set the value of gamma M to the maximum - future work to make selection
         self.gamma_M = 1.3
 
         # set the kmod factor
@@ -27,7 +30,6 @@ class ScrewConnection:
                                            == self.service_class]
         self.kmod =  service_class_filter.loc[type, self.load_duration]
 
-    """ The below is taken from the Eurocode """
     """ This section deals with axial withdrawal and pull through """
 
     def faxk_nail(self):
@@ -73,6 +75,9 @@ class ScrewConnection:
     def screw_withdrawal(self, tpen, n=1):
         """calculate the withdrawal capacity of a screw"""
         # note that the force angle is not considere here
+        # todo - this needs to be modified to account for the angle of the
+        # fixing to the grain
+
         kd = min(1, self.diam / 8)
         f = (self.nef_axial(n) * self.faxk_screw(tpen) * self.diam *
                 tpen * kd / 1.2)
@@ -128,3 +133,17 @@ class ScrewConnection:
         f6 = 1.15 * math.sqrt(2*b/(1+b)) * math.sqrt(2*m*a1*self.diam) + a3 
         answer = [f1, f2, f3, f4, f5, f6]
         return min(answer)
+
+
+    def screw_lateral(self, t1=38, t2=38, drill='predrilled', fu=540, tpen=30, n=1, spacing='10d'):
+        """ calculate the design lateral load resistance of a screw """
+        # get the value of nef for teh connection
+        nef = self.nef(spacing, drill, n)
+
+        # get the charactoristic lateral capacity
+        f = self.Fvrk(t1, t2, drill, fu, tpen)
+
+        # calc the design value
+        fd = nef * self.kmod * f / self.gamma_M
+
+        return fd
