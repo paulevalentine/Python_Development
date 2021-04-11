@@ -13,7 +13,7 @@ class ScrewConnection:
         self.grade = grade
         self.load_duration = load_duration
         self.service_class = service_class
-        self.alpah = alpha * math.pi / 180
+        self.alpha = alpha * math.pi / 180
 
 
         # Get the general timber properties from the data CSV file
@@ -78,27 +78,33 @@ class ScrewConnection:
         # note that the force angle is not considere here
         # todo - this needs to be modified to account for the angle of the
         # fixing to the grain
-        a = math.alpha
+        a = self.alpha
         kd = min(1, self.diam / 8)
-        f = (self.nef_axial(n) * self.faxk_screw(tpen) * self.diam *
-                tpen * kd / (1.2*math.cos(a)**2 + math.sin(a)**2)
-        return f
 
-    def screw_pullthrough(self, n=1):
-        return self.nef_axial(n) * self.fheadk_nail() * self.diamh**2 # nail fheadk used here 
+        f = (self.nef_axial(n) * self.faxk_screw(tpen)  * self.diam * tpen * kd /
+                (1.2 * math.cos(a)**2 + math.sin(a)**2))
+        return f 
+
+    def screw_pullthrough(self, n=1, fheadk=0):
+        if fheadk == 0:
+            fheadk = self.fheadk_nail()
+
+        return self.nef_axial(n) * fheadk * self.diamh**2 # nail fheadk used here 
 
 
-    def screw_axial(self, tpen, n=1):
+    def screw_axial(self, tpen, n=1, fheadk=0):
         """ the min of withdrawl and pull through """
         """ calcualest the axial capacity of the screw """
-        return min(self.screw_withdrawal(tpen, n), self.screw_pullthrough(n)) * self.kmod / self.gamma_M
+        return min(self.screw_withdrawal(tpen, n), self.screw_pullthrough(n, fheadk)) * self.kmod / self.gamma_M
 
 
     """ This section deals with shear capacity of screws """
 
     def splitting(self, b=38, h=100, he=50):
         """ characeristic splitting capacity of the connection """
-        return 14 * b * math.sqrt(he / (1 - he/h))
+        F90Rk = 14 * b * math.sqrt(he / (1 - he/h))
+        F90Rd = F90Rk * self.kmod / self.gamma_M
+        return F90Rd 
 
 
     def fhk(self, drill='predrilled'):
@@ -146,5 +152,25 @@ class ScrewConnection:
 
         # calc the design value
         fd = nef * self.kmod * f / self.gamma_M
-
         return fd
+
+
+    def unity_check(self, F, V, t1=38, t2=38, drill='predrilled', fu=540, tpen=30, n=1, spacing='10d'):
+        """ calculate the (8,28) unit check for combined lateral and axial capacity """
+        ax = self.screw_axial(tpen, n)
+        vx = self.screw_lateral(t1, t2, drill, fu, tpen, n, spacing)
+        uax = F/ax
+        uvx = V/vx
+        u = (F/ax)**2 + (V/vx)**2
+
+        if uax < 1 and uvx < 1 and u < 1:
+            status = 'The connectoin is adequate'
+        else:
+            status = 'FAIL'
+
+        print(f'The design axial capacity of the connection = {vx :.2f}N')
+        print(f'The design lateral capacity of the connection = {ax :.2f}N')
+        print(f'The axial unity check = {uax :.2f}')
+        print(f'The lateral unity check = {uvx :.2f}')
+        print(f'The combined unity check = {u :.2f}')
+        print(status)
