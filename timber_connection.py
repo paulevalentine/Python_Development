@@ -7,12 +7,13 @@ class ScrewConnection:
     """ Number of fixings is considered as an instance parameter """
 
     def __init__(self, diam, diamh, grade='C16',
-                 load_duration='permanent', service_class=1):
+                 load_duration='permanent', service_class=1, alpha=90):
         self.diam = diam
         self.diamh = diamh
         self.grade = grade
         self.load_duration = load_duration
         self.service_class = service_class
+        self.alpah = alpha * math.pi / 180
 
 
         # Get the general timber properties from the data CSV file
@@ -77,10 +78,10 @@ class ScrewConnection:
         # note that the force angle is not considere here
         # todo - this needs to be modified to account for the angle of the
         # fixing to the grain
-
+        a = math.alpha
         kd = min(1, self.diam / 8)
         f = (self.nef_axial(n) * self.faxk_screw(tpen) * self.diam *
-                tpen * kd / 1.2)
+                tpen * kd / (1.2*math.cos(a)**2 + math.sin(a)**2)
         return f
 
     def screw_pullthrough(self, n=1):
