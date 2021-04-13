@@ -50,7 +50,6 @@ class ScrewConnection:
         fheadk = 70*10**-6 * self.timber['pk']**2
         return fheadk
 
-
     def nail_withdrawal(self, tpen, t=38, number=1):
         """calculate the withdrawal load of a smooth nail"""
         a = self.faxk_nail() * self.diam * tpen
@@ -155,9 +154,9 @@ class ScrewConnection:
         return fd
 
 
-    def unity_check(self, F, V, t1=38, t2=38, drill='predrilled', fu=540, tpen=30, n=1, spacing='10d'):
+    def unity_check(self, F, V, t1=38, t2=38, drill='predrilled', fu=540, tpen=30, n=1, spacing='10d', fheadk=0):
         """ calculate the (8,28) unit check for combined lateral and axial capacity """
-        ax = self.screw_axial(tpen, n)
+        ax = self.screw_axial(tpen, n, fheadk)
         vx = self.screw_lateral(t1, t2, drill, fu, tpen, n, spacing)
         uax = F/ax
         uvx = V/vx
@@ -168,8 +167,8 @@ class ScrewConnection:
         else:
             status = 'FAIL'
 
-        print(f'The design axial capacity of the connection = {vx :.2f}N')
-        print(f'The design lateral capacity of the connection = {ax :.2f}N')
+        print(f'The design axial capacity of the connection = {ax :.2f}N')
+        print(f'The design lateral capacity of the connection = {vx :.2f}N')
         print(f'The axial unity check = {uax :.2f}')
         print(f'The lateral unity check = {uvx :.2f}')
         print(f'The combined unity check = {u :.2f}')
