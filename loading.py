@@ -15,7 +15,8 @@ class Load:
         'Tiles': 0.55,
         'Rafters': 0.15,
         'Felt': 0.05,
-        'Battens': 0.05
+        'Battens': 0.05,
+        'Nulok': 0.28
     }
 
     var_loads = {
